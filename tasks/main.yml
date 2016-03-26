@@ -1,0 +1,46 @@
+---
+
+- name: check if systemd available
+  stat: path=/bin/systemd
+  register: systemd
+
+- name: is_systemd true
+  set_fact:
+    is_systemd: true
+  when: systemd.stat.exists
+
+- name: is_systemd false
+  set_fact:
+    is_systemd: false
+  when: not systemd.stat.exists
+
+- name: which user
+  user:
+    name: "{{ansible_ssh_user}}"
+    append: yes
+  register: docker_user
+
+- name: Make target directory
+  file: name="{{ target }}" mode=755 owner="{{ docker_user.name }}" group="{{ docker_user.group }}" state=directory
+
+- name: Debian-specific prerequisite package install
+  become: yes
+  include: debian_pre_pkg_install.yml
+  when: ansible_distribution == 'Debian' or 
+        ansible_distribution == 'Ubuntu'
+
+- name: Redhat-specific prerequisite package install
+  become: yes
+  include: redhat_pre_pkg_install.yml
+  when: ansible_distribution == 'RedHat'
+
+- name: add docker user prior to install
+  become: yes
+  include: user_setup.yml
+
+- name: install docker
+  become: yes
+  include: docker_install.yml
+
+- name: include proxy setup
+  include: proxy.yml

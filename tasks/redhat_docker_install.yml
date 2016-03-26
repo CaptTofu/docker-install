@@ -1,0 +1,30 @@
+---
+
+- name: Install Docker Package using Yum
+  yum: pkg=* state=latest update_cache=yes
+  environment: "{{ proxy_env|default({}) }}"
+  when: use_package
+
+- name: Install Docker Package using Yum
+  yum: pkg=docker-engine state=present
+  environment: proxy_env
+  when: use_package
+
+- name: Check if docker was already installed using curl
+  command: rpm -q docker-engine
+  register: docker_engine_installed
+  failed_when: docker_engine_installed.rc > 1
+  changed_when: docker_engine_installed.rc == 1 
+  when: not use_package
+
+- name: Install docker using curl on redhat
+  shell: curl -sSL https://get.docker.com/ | sh
+  args:
+    creates: /usr/bin/docker
+  when: not use_package and docker_engine_installed.rc == 1
+  register: docker_install_result
+  failed_when: "'Failed' in docker_install_result.stderr"
+  environment: "{{ proxy_env|default({}) }}"
+
+- name: Start docker on boot
+  command: chkconfig docker on

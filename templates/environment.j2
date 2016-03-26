@@ -1,0 +1,9 @@
+# Environment (systemd-based Linux)
+{% if proxy_env is defined and proxy_env|length > 0 %}
+HTTP_PROXY={{ proxy_env.http_proxy }}
+HTTPS_PROXY={{ proxy_env.http_proxy }}
+NO_PROXY={{ proxy_env.no_proxy }}
+http_proxy={{ proxy_env.http_proxy }}
+https_proxy={{ proxy_env.http_proxy }}
+no_proxy={{ proxy_env.no_proxy }}
+{% endif %}

@@ -1,0 +1,23 @@
+---
+
+# this is because one version of the docker package installed
+# init files even for systemd-based Linux
+- name: Clean up init.d and upstart files on systemd linux
+  file: path={{ item }} state=absent
+  with_items:
+    - /etc/init.d/docker
+    - /etc/init/docker.conf
+    - /etc/default/docker
+
+- name: Render systemd files for docker
+  template: src="{{ item }}.j2" dest=/lib/systemd/system/{{ item }}
+  notify:
+    - reload systemd
+    - restart docker
+  with_items:
+    - docker.service
+    - docker.socket
+  when: not flannel_installed
+
+- name: restart docker
+  service: name=docker state=restarted

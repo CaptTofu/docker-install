@@ -1,0 +1,27 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target docker.socket
+Requires=docker.socket
+
+[Service]
+EnvironmentFile=/etc/environment
+{% if proxy_env is defined %}
+{% set space=" " -%}
+Environment=
+{%- for key,value in proxy_env.iteritems() -%}
+"{{ key }}={{ value }}"{{ space }}
+{%- endfor %}
+{% endif %}
+
+Type=notify
+ExecStart=/usr/bin/docker daemon -r -H fd:// {{ docker_opts }}
+MountFlags=slave
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

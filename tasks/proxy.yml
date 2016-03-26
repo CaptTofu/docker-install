@@ -1,0 +1,40 @@
+---
+
+- name: Set string to "export"
+  set_fact:
+    exp: "export "
+  when: not is_systemd
+
+- name: Set string to ""
+  set_fact:
+    exp: ""
+  when: is_systemd
+
+- name: Set docker_config for systemd
+  set_fact: docker_config="/etc/environment"
+  when: is_systemd
+
+- name: Set docker_config for debian upstart
+  set_fact: docker_config="/etc/default/docker"
+  when: (ansible_os_family== 'Debian') and not is_systemd
+
+- name: Set docker_config for redhat
+  set_fact: docker_config="/etc/default/sysconfig"
+  when: ansible_os_family == 'RedHat' and not is_systemd
+
+- name: remove any old proxy lines
+  become: yes
+  lineinfile: dest="{{ docker_config }}" regexp="^{{ exp }}{{ item }}.*" line="^{{ exp }} {{ item }}" state=absent create=yes
+  notify:
+     - reload systemd
+     - restart docker
+  with_items: "{{ proxy_settings }}"
+
+# reload systemd to ensure env is passed to docker
+- name: setup docker secure proxy
+  become: yes
+  notify:
+     - reload systemd
+     - restart docker
+  lineinfile: dest='{{ docker_config }}' line='{{ exp }}{{ item.key }}={{ item.value }}' state=present create=yes
+  with_dict: "{{ proxy_env|default({}) }}"

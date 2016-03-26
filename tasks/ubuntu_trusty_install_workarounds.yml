@@ -1,0 +1,17 @@
+---
+
+# https://meta.discourse.org/t/docker-install-module-aufs-not-found/18494
+- name: Install docker file-system support packages for 14.04x
+  apt: pkg={{ item }} force=yes
+  with_items:
+    - lxc
+    - wget
+    - bsdtar
+  environment: "{{ proxy_env|default({}) }}"
+
+- name: Install kernel extras for 14.04x
+  apt: pkg="linux-image-extra-{{ ansible_kernel }}" force=yes
+  environment: "{{ proxy_env|default({}) }}"
+
+- name: Insert aufs kernel module
+  modprobe: name=aufs state=present

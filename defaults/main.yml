@@ -1,0 +1,19 @@
+---
+
+hpcloud: false
+proxy_env: {}
+docker_ssh_key_dir: ~/.ssh
+#docker_ssh_key_private: picasso.pem
+#docker_ssh_key_public: "{{ docker_ssh_key_dir}}/{{ docker_ssh_key_private }}.pub"
+#docker_ssh_key_public_content: "{{ lookup('file', docker_ssh_key_public ) }}"
+docker_opts: ""
+internal_hp: false 
+jenkins_host_setup: false
+use_package: false
+target: target/
+jjb_env: ~/venv_jjb
+dns_images:
+  etcd : "2.0.9"
+  kube2sky: "1.11" 
+  skydns: "2015-03-11-001"
+  pause: "0.8.0"

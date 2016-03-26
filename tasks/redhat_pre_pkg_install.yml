@@ -1,0 +1,15 @@
+---
+
+- name: install packages
+  yum: name=http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm state=installed
+
+- name: install packages
+  yum: name="{{ item }}" state=installed update_cache=yes
+  with_items:
+    - curl
+    - docker-selinux
+    - git
+    - python-devel
+    - python-setuptools
+    - python-pip
+    - ftp://bo.mirror.garr.it/pub/1/unity/cooker/repository/x86_64/contrib/release/daemonize-1.7.3-2-omv2015.0.x86_64.rpm

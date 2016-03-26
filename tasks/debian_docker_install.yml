@@ -1,0 +1,26 @@
+- name: Update apt cache
+  apt: update_cache=yes
+  failed_when: false
+
+- name: Ubuntu 14.04 work-arounds
+  include: ubuntu_trusty_install_workarounds.yml
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'trusty'
+
+- name: Import Docker repo key
+  apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=58118E89F3A912897C070ADBF76221572C52609D
+  environment: "{{ proxy_env|default({}) }}"
+
+- name: Add Docker repository
+  apt_repository: repo="deb https://apt.dockerproject.org/repo {{ ansible_distribution|lower }}-{{ distribution_release }} main" state=present
+  environment: "{{ proxy_env|default({}) }}"
+
+- name: Install Docker Package using apt
+  apt: pkg=docker-engine state=present force="yes"
+  environment: "{{ proxy_env|default({}) }}"
+
+- name: include systemd plays for cleanup
+  include: systemd.yml
+  when: is_systemd
+  notify:
+     - reload systemd
+     - restart docker

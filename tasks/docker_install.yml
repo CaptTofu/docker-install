@@ -1,0 +1,10 @@
+---
+
+- name: include docker install for debian plays
+  include: debian_docker_install.yml
+  when: ansible_os_family == 'Debian' 
+
+- name: Yum Install Docker 
+  include: redhat_docker_install.yml
+  when: ansible_os_family == 'RedHat'
+

@@ -1,0 +1,10 @@
+---
+
+- name: Add docker group
+  group: name=docker state=present system=yes
+
+- name: Add docker user for socket
+  user: name=docker groups=docker shell=/bin/nologin system=yes append=yes
+
+- name: Add login user to docker group
+  user: name="{{ ansible_ssh_user }}" groups=docker append=yes

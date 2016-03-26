@@ -1,0 +1,27 @@
+---
+
+- name: Update cache apt packages
+  apt: update_cache=yes
+  environment: "{{ proxy_env|default({}) }}"
+  failed_when: false
+
+- name: Apt Install various core packages
+  apt: pkg="{{ item }}" state=present force="yes"
+  with_items:
+    - apt-transport-https
+    - lsb
+    - lsb-base
+    - lsb-core
+    - lsb-release
+  environment: "{{ proxy_env|default({}) }}"
+  when: internal_repo is not defined
+
+- name: Setup Wheezy backports repo
+  apt_repository: repo='deb http://http.debian.net/debian wheezy-backports main'
+  when: ansible_distribution_release == 'wheezy'
+  environment: "{{ proxy_env|default({}) }}"
+
+- name: Update apt cache
+  apt: update_cache=yes 
+  environment: "{{ proxy_env|default({}) }}"
+  failed_when: false
